@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create User</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/edit.css' %}">
+</head>
+<body>
+    {% block content %}
+        <h1>User {{ view.object.username|default:"creation" }}</h1>
+        <form method="post" id="user_yes">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save</button><br><br>
+            <a href="{% url 'user_management' %}" class="button" id="user_a">Cancel</a>
+        </form>
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+body {
+    background-color: #f7e1fe;
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: #ff8c00;
+    font-size: 35px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Category Headers */
+h2 {
+    color: #9303a3;
+    font-size: 28px;
+    margin: 20px 0 10px 20px;
+    text-align: left;
+}
+
+/* Product Grid Container */
+.product-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    padding: 10px;
+}
+
+/* Product Block */
+.product-block {
+    flex: 1 1 calc(30% - 20px); /* Adjust width of each block */
+    background-color: #fff;
+    border: 3px solid #9303a3;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.product-block:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Product Title */
+.product-block h3 {
+    font-size: 20px;
+    color: #ff8c00;
+    margin-bottom: 10px;
+}
+
+/* Product Price */
+.product-block p {
+    font-size: 18px;
+    color: #9303a3;
+    margin-bottom: 10px;
+}
+
+/* Add Checkbox */
+.product-block label {
+    display: block;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+/* Submit Button */
+button {
+    background-color: #ff8c00;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 20px auto;
+    display: block;
+}
+
+button:hover {
+    opacity: 0.8;
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Creation</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/order_creation.css' %}">
+</head>
+<body>
+    <h1>Select Products for Order</h1>
+    <form method="POST">
+        {% csrf_token %}
+        
+        {% for category, products in PRODUCTS.items %}
+            <h2>{{ category|title }}</h2>
+            <div class="product-grid">
+                {% for product_name, details in products.items %}
+                    <div class="product-block">
+                        <h3>{{ product_name }}</h3>
+                        <p>Price: {{ details.price }}€</p>
+                        <label>
+                            <span>Quantity:</span>
+                            <input type="number" name="products[{{ product_name }}]" min="0" value="0" class="quantity-input">
+                        </label>
+                        <button type="button" class="update-btn" data-product="{{ product_name }}">Update Quantity</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        
+        <button type="submit">Mark as Paid</button>
+    </form>
+
+    <script>
+        // JavaScript to handle quantity update interactions
+        document.addEventListener('DOMContentLoaded', () => {
+            const updateButtons = document.querySelectorAll('.update-btn');
+
+            updateButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const product = event.target.dataset.product;
+                    const input = event.target.previousElementSibling.querySelector('.quantity-input');
+
+                    if (input.value < 0) {
+                        alert('Quantity must be at least 0');
+                        input.value = 0;
+                    } else {
+                        alert(`Updated ${product} quantity to ${input.value}`);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+

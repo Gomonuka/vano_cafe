@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+body {
+    background-color: #ecb1ff; 
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    text-align: center;
+    padding: 20px;
+    background-color: #9303a3;
+    color: #fff;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+main {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.buttons-section {
+    text-align: center;
+}
+
+.buttons-section a {
+    background-color: #ff8c00; 
+    border: none;
+    text-decoration: none;
+    color: #fff;
+    padding: 15px 30px;
+    font-size: 20px;
+    border-radius: 10px;
+    margin: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.buttons-section button:hover {
+    background-color: #ff6a00;
+}
+
+.low-stock-section {
+    background-color: #f9e7e4;
+    padding: 20px;
+    border: 2px solid #9303a3;
+    border-radius: 15px;
+}
+
+.low-stock-section h2 {
+    color: #9303a3;
+    font-size: 25px;
+}
+
+.low-stock-section ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.low-stock-section li {
+    font-size: 18px;
+    color: #000;
+    margin: 10px 0;
+}
+
+.statistics-section {
+    background-color: #f9e7e4;
+    padding: 20px;
+    border: 2px solid #9303a3;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.statistics-section h2 {
+    color: #9303a3;
+    font-size: 25px;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+    margin-top: 20px;
+}

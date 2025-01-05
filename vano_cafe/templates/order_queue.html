@@ -1,0 +1,10 @@
+<h1>Order Queue</h1>
+<ul>
+    {% for order in active_orders %}
+        <li>
+            Order #{{ order.id }} - Total: {{ order.total_price }} USD
+            <button><a href="{% url 'mark_ready' order.id %}">Mark as Ready</a></button>
+            <button><a href="{% url 'cancel_order' order.id %}">Cancel Order</a></button>
+        </li>
+    {% endfor %}
+</ul>

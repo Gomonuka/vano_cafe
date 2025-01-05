@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+    </header>
+    <main>
+        <section class="buttons-section">
+            <a href="{% url 'stock_management' %}" class="button button-primary">Stock Management</a>
+            <a href="{% url 'user_management' %}" class="button button-secondary">User Management</a>
+            <a href="{% url 'login' %}" class="button" id="user_a">Log Out</a>
+        </section>
+        <section class="low-stock-section">
+            <h2>Low Stock Products</h2>
+            <ul>
+                {% for product in low_stock_products %}
+                    <li>{{ product.name }} - Stock: {{ product.stock }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+        <section class="statistics-section">
+            <h2>Statistics</h2>
+            <canvas id="salesChart"></canvas>
+        </section>
+    </main>
+</body>
+</html>

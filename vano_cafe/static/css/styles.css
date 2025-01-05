@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+body {
+    background-color: #f7e1fe;
+    font-family: 'Nunito', sans-serif;
+}
+
+h1 {
+    color: #ff8c00;
+    font-size: 35px;
+    text-align: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+table th, table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #9303a3;
+    height: 25px;
+}
+
+table th {
+    background-color: #ff8c00;
+    color: white;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9e7e4;
+}
+
+.button, #return {
+    background-color: #ff8c00;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#return {
+    margin: 40%;
+}
+
+a {
+    background-color: #ff8c00;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button.delete {
+    background-color: #d11a2a;
+}
+
+.button:hover, a:hover {
+    opacity: 0.8;
+}
