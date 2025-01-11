@@ -1,9 +1,61 @@
-<h1>Order History (Current Session)</h1>
-<ul>
-    {% for order in orders %}
-        <li>
-            Order #{{ order.id }} - Status: {{ order.status }}
-            <a href="{% url 'order_detail' order.id %}">View Details</a>
-        </li>
-    {% endfor %}
-</ul>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/order_history.css' %}">
+</head>
+<body>
+    <h1>Order History</h1>
+    <a href="{% url 'order_queue' %}">Go to Order Queue</a>
+    <a href="{% url 'login' %}" class="button" id="user_a">Log Out</a>
+    <h2>Ready Orders</h2>
+    {% if ready_orders %}
+        <div class="order-list">
+            {% for order in ready_orders %}
+                <div class="order-item">
+                    <h3>Order #{{ order.id }} - Created at: {{ order.created_at }}</h3>
+                    <h3>Total Price: {{ order.total_price }}€</h3>
+                    <p>Status: {{ order.status }}</p>
+                    <ul class="product-list">
+                        {% for product in order.products %}
+                            <li>
+                                <span class="product-name">{{ product.name }}</span> 
+                                - Quantity: {{ product.quantity }} 
+                                - Price: {{ product.price }}€
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No ready orders.</p>
+    {% endif %}
+    <h2>Cancelled Orders</h2>
+    {% if cancelled_orders %}
+        <div class="order-list">
+            {% for order in cancelled_orders %}
+                <div class="order-item">
+                    <h3>Order #{{ order.id }} - Created at: {{ order.created_at }}</h3>
+                    <h3>Total Price: {{ order.total_price }}€</h3>
+                    <p>Status: {{ order.status }}</p>
+                    <ul class="product-list">
+                        {% for product in order.products %}
+                            <li>
+                                <span class="product-name">{{ product.name }}</span> 
+                                - Quantity: {{ product.quantity }} 
+                                - Price: {{ product.price }}€
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No cancelled orders.</p>
+    {% endif %}
+</body>
+</html>

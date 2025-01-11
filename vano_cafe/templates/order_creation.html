@@ -9,6 +9,8 @@
 </head>
 <body>
     <h1>Select Products for Order</h1>
+    <a href="{% url 'order_queue' %}">Go to Order Queue</a>
+    <a href="{% url 'login' %}" class="button" id="user_a">Log Out</a>
     {% load custom_filters %}
     <form method="POST">
         {% csrf_token %}
@@ -26,32 +28,12 @@
                                    max="{{ products_max_quantity|get_item:product_name }}">
                         </label>
                         <input type="hidden" name="products-name-{{ product_name }}" value="{{ product_name }}">
-                        <button type="button" class="update-btn" data-product="{{ product_name }}">Update Quantity</button>
                     </div>
                 {% endfor %}
             </div>
         {% endfor %}
         <button type="submit">Mark as Paid</button>
     </form>    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const updateButtons = document.querySelectorAll('.update-btn');
-
-            updateButtons.forEach(button => {
-                button.addEventListener('click', (event) => {
-                    const product = event.target.dataset.product;
-                    const input = event.target.previousElementSibling.querySelector('.quantity-input');
-
-                    if (input.value < 0) {
-                        alert('Quantity must be at least 0');
-                        input.value = 0;
-                    } else {
-                        alert(`Updated ${product} quantity to ${input.value}`);
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>
 

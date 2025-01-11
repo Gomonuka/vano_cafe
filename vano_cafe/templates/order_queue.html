@@ -9,13 +9,16 @@
 </head>
 <body>
     <h1>Order Queue</h1>
-
+    <a href="{% url 'order_creation' %}">Go to Order Creation</a>
+    <a href="{% url 'order_history' %}">Go to Order History</a>
+    <a href="{% url 'login' %}" class="button" id="user_a">Log Out</a>
     {% if orders %}
     <ul>
         {% for order in orders %}
             <li>
                 <h2>Order #{{ order.id }} - Status: {{ order.status }}</h2>
                 <h2>Barista #{{ order.barista }} - Created at: {{ order.created_at }}</h2>
+                <h2>Total Price: {{ order.total_price }}</h2>
                 <ul>
                     {% for item in order.parsed_products %}
                         <li>

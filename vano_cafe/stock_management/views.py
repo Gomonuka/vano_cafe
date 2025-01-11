@@ -164,10 +164,13 @@ def order_queue(request):
     return render(request, "order_queue.html", {"orders": orders})
 
 def order_history(request):
-    if not request.user.is_barista():
-        return redirect('login') 
-    orders = Order.objects.filter(barista=request.user, created_at__gte=request.user.last_login)
-    return render(request, 'order_history.html', {'orders': orders})
+    ready_orders = Order.objects.filter(status='ready')
+    cancelled_orders = Order.objects.filter(status='cancelled')
+    
+    return render(request, 'order_history.html', {
+        'ready_orders': ready_orders,
+        'cancelled_orders': cancelled_orders,
+    })
 
 def admin_dashboard(request):
     if not request.user.is_admin():
