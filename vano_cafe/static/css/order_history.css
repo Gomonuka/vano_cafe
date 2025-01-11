@@ -1,30 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
-
 body {
     background-color: #f7e1fe;
     font-family: 'Nunito', sans-serif;
     margin: 0;
     padding: 0;
 }
-
 h1 {
     color: #ff8c00;
     font-size: 35px;
     text-align: center;
     margin-top: 20px;
 }
-
 h2 {
     color: #9303a3;
     font-size: 30px;
     text-align: center;
 }
-
 .order-list {
     margin: 20px auto;
     width: 80%;
 }
-
 .order-item {
     background-color: #fff;
     border: 3px solid #9303a3;
@@ -33,28 +28,23 @@ h2 {
     padding: 20px;
     margin-bottom: 20px;
 }
-
 .order-item h3 {
     color: #ff8c00;
     font-size: 24px;
 }
-
 .order-item p {
     font-size: 18px;
     color: #9303a3;
 }
-
 .product-list {
     list-style-type: none;
     padding: 0;
 }
-
 .product-list li {
     font-size: 16px;
     color: #666;
     margin: 5px 0;
 }
-
 a {
     background-color: #ff8c00;
     border: none;
@@ -68,7 +58,6 @@ a {
     transition: background-color 0.3s ease;
     display: inline-block;
 } 
-
 button:hover {
     opacity: 0.8;
 }

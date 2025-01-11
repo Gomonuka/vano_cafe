@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
-
 body {
     background-color: #ecb1ff;
     font-family: 'Nunito', sans-serif;
@@ -10,13 +9,11 @@ body {
     height: 100vh;
     text-align: center;
 }
-
 h1 {
     color: #ff8c00;
     font-size: 35px;
     text-align: center;
 }
-
 form {
     width: 400px;
     height: 300px;
@@ -29,12 +26,10 @@ form {
     flex-direction: column;
     justify-content: space-between;
 }
-
 p {
     font-size: 18px;
     color: #9303a3;
 }
-
 button, a {
     background-color: #ff8c00;
     border-color: #ff8c00;
@@ -45,18 +40,15 @@ button, a {
     text-decoration: none;
     text-align: center;
 }
-
 button {
     margin-bottom: 15px;
 }
-
 a {
     display: inline-block;
     margin-top: 10px;
     font-size: 18px;
     color: #9303a3;
 }
-
 button:hover, a:hover {
     background-color: #9303a3;
     color: white;
