@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from .models import Product, Order, User
-from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
 from django.db.models import F
 from .products_data import PRODUCTS
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
@@ -27,92 +27,157 @@ def custom_login(request):
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
-
-@csrf_exempt
 def order_creation(request):
+    filtered_products = {}
+    products_max_quantity = {}
+
+    for category, products in PRODUCTS.items():
+        filtered_products[category] = {}
+        for product_name, details in products.items():
+            ingredients = details["ingredients"]
+            try:
+                max_quantity = min(
+                    Product.objects.get(name=ingredient).stock // required_amount
+                    for ingredient, required_amount in ingredients.items()
+                )
+                if max_quantity > 0:
+                    filtered_products[category][product_name] = details
+                    products_max_quantity[product_name] = max_quantity
+            except Product.DoesNotExist as e:
+                print(f"Ingredient not found: {e}")
+                continue
+
     if request.method == "POST":
-        # Retrieve form data
-        selected_products = request.POST.getlist("products[]")
-        products_to_add = {}
+        products_to_add = []
+        
+        for key, value in request.POST.items():
+            if key.startswith("products-quantity-"):
+                product_name_key = key.replace("products-quantity-", "products-name-")
+                quantity = int(value)
+                product_name = request.POST.get(product_name_key)
 
-        # Parse and validate product quantities
-        for item in selected_products:
-            product_name, quantity = item.split(":")
-            quantity = int(quantity)
-            if quantity < 1:
-                messages.error(request, f"Invalid quantity for {product_name}")
-                return redirect("create_order")
+                if quantity > 0:
 
-            # Check if the product exists in PRODUCTS and calculate stock impact
-            for category, product_data in PRODUCTS.items():
-                if product_name in product_data:
-                    ingredients = product_data[product_name]["ingredients"]
-                    for ingredient, required_amount in ingredients.items():
-                        product = Product.objects.get(name=ingredient)
-                        if product.stock < required_amount * quantity:
-                            messages.error(request, f"Not enough stock for {ingredient}")
-                            return redirect("create_order")
-                    # Add to order if stock is sufficient
-                    products_to_add[product_name] = quantity
-                    break
+                    for category, product_data in PRODUCTS.items():
+                        if product_name in product_data:
+                            ingredients = product_data[product_name]["ingredients"]
+                            price = product_data[product_name]["price"]
 
-        # Deduct stock from ingredients
-        for product_name, quantity in products_to_add.items():
-            for category, product_data in PRODUCTS.items():
-                if product_name in product_data:
-                    ingredients = product_data[product_name]["ingredients"]
-                    for ingredient, required_amount in ingredients.items():
-                        product = Product.objects.get(name=ingredient)
-                        product.stock -= required_amount * quantity
-                        product.save()
+                            for ingredient, required_amount in ingredients.items():
+                                product = Product.objects.get(name=ingredient)
+                                if product.stock < required_amount * quantity:
+                                    messages.error(request, f"Not enough stock for {ingredient}")
+                                    return redirect("create_order")
+                            
+                            products_to_add.append({
+                                "name": product_name,
+                                "quantity": quantity,
+                                "price": price,
+                            })
+                            break
 
-        # Create the order
+        total_price = sum(product["price"] * product["quantity"] for product in products_to_add)
+
+        for product in products_to_add:
+            product_name = product["name"]
+            quantity = product["quantity"]
+            ingredients = next(
+                prod[product_name]["ingredients"]
+                for cat, prod in PRODUCTS.items()
+                if product_name in prod
+            )
+            for ingredient, required_amount in ingredients.items():
+                product_obj = Product.objects.get(name=ingredient)
+                product_obj.stock -= required_amount * quantity
+                product_obj.save()
+
         order = Order.objects.create(
             barista=request.user,
             status="paid",
-            total_price=sum(
-                PRODUCTS[cat][name]["price"] * qty
-                for cat, prod in PRODUCTS.items()
-                for name, details in prod.items()
-                for name, qty in products_to_add.items()
-            ),
-            products=products_to_add,  # JSON data with products and quantities
+            total_price=total_price,
+            products=products_to_add,
         )
 
         messages.success(request, "Order successfully created!")
         return redirect("order_queue")
 
-    # Render the product selection form
-    context = {"PRODUCTS": PRODUCTS}
-    return render(request, "order_creation.html", context)
+    return render(request, "order_creation.html", {
+        "PRODUCTS": filtered_products,
+        "products_max_quantity": products_max_quantity,
+    })
 
 def order_queue(request):
-    if not request.user.is_barista():
-        return redirect('login')  # Redirect non-barista users
-    active_orders = Order.objects.filter(status='paid', barista=request.user)
-    return render(request, 'order_queue.html', {'active_orders': active_orders})
+    orders = Order.objects.filter(status="paid")
 
-def mark_ready(request, order_id):
-    order = Order.objects.get(id=order_id)
-    order.status = 'ready'
-    order.save()
-    return redirect('order_queue')
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        order_id = request.POST.get('order_id')
+        order = Order.objects.get(id=order_id)
+
+        if action == "mark_ready" and order.status != 'ready':
+            order.status = 'ready'
+            order.save()
+
+        elif action == "cancel_order" and order.status != 'cancelled':
+
+            order.status = 'cancelled'
+
+            try:
+                with transaction.atomic():
+
+                    for product in order.products:  
+                        print(f"Processing product: {product}") 
+                        product_name = product.get('name')
+                        quantity = product.get('quantity')
+
+                        if product_name and quantity:
+                            try:
+                                product_obj = Product.objects.get(name=product_name.strip().lower())
+                                print(f"Found product: {product_obj}")
+                                product_obj.stock += quantity
+                                product_obj.save()
+                            except Product.DoesNotExist:
+                                print(f"Error: Product {product_name} does not exist in the database.")
+                        else:
+                            print(f"Invalid product data: {product}")
+
+                    order.save()
+                    print(f"Order {order.id} has been cancelled and stock updated.") 
+            except Exception as e:
+                print(f"Error during order cancellation: {e}")
+
+        return redirect('order_queue') 
+
+    for order in orders:
+        order.parsed_products = []
+        for product in order.products: 
+            product_name = product.get('name')
+            quantity = product.get('quantity')
+            price = product.get('price')
+
+            order.parsed_products.append({
+                "name": product_name,
+                "quantity": quantity,
+                "price": price,
+            })
+
+    return render(request, "order_queue.html", {"orders": orders})
 
 def order_history(request):
     if not request.user.is_barista():
-        return redirect('login')  # Redirect non-barista users
+        return redirect('login') 
     orders = Order.objects.filter(barista=request.user, created_at__gte=request.user.last_login)
     return render(request, 'order_history.html', {'orders': orders})
 
 def admin_dashboard(request):
     if not request.user.is_admin():
-        return redirect('login')  # Redirect non-admin users
+        return redirect('login')
     low_stock_products = Product.objects.filter(stock__lte=F('low_stock_threshold'))
     return render(request, 'admin_dashboard.html', {'low_stock_products': low_stock_products})
 
 def stock_management(request):
     if not request.user.is_admin():
-        return redirect('login')  # Redirect non-admin users
+        return redirect('login')
     products = Product.objects.all()
     return render(request, 'stock_management.html', {'products': products})
 
@@ -126,7 +191,6 @@ def stock_create(request):
         form = ProductForm()
     return render(request, 'stock_form.html', {'form': form, 'action': 'Create'})
 
-# Update an existing product (Update)
 def stock_update(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
@@ -138,7 +202,6 @@ def stock_update(request, pk):
         form = ProductForm(instance=product)
     return render(request, 'stock_form.html', {'form': form, 'action': 'Update'})
 
-# Delete a product (Delete)
 def stock_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
@@ -148,7 +211,7 @@ def stock_delete(request, pk):
 
 def user_management(request):
     if not request.user.is_admin():
-        return redirect('login')  # Redirect non-admin users
+        return redirect('login') 
     users = User.objects.all()
     return render(request, 'user_management.html', {'users': users})
 
@@ -183,7 +246,7 @@ class UserUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
             form = CustomUserEditForm(request.POST, instance=user)
             if form.is_valid():
                 form.save()
-                return redirect('user_management')  # Redirect to the user management page after update
+                return redirect('user_management')
         else:
             form = CustomUserEditForm(instance=user)
 
@@ -199,14 +262,11 @@ def display_products(request, category=None):
     View to display products by category. If no category is specified, show all categories.
     """
     if category:
-        # Display products in the specified category
         products = PRODUCTS.get(category, {})
         if not products:
-            # Handle case where category doesn't exist
             return render(request, "error.html", {"message": "Category not found."})
         context = {"category": category, "products": products}
     else:
-        # Show all categories
         context = {"categories": PRODUCTS.keys()}
     
     return render(request, "order_creation.html", context)

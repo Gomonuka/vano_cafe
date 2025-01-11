@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import JSONField
 from .products_data import PRODUCTS
+from django.db import transaction
 
 class User(AbstractUser):
     ROLE_CHOICES = (
@@ -41,37 +42,39 @@ class Order(models.Model):
     products = JSONField() 
     def __str__(self):
         return f"Order #{self.id} - {self.status}"
-    def add_product(self, product_name, quantity):
-        product_details = None
-        for category, products in PRODUCTS.items():
-            if product_name in products:
-                product_details = products[product_name]
-                break
-        
-        if not product_details:
-            raise ValueError("Product not found.")
-        
-        ingredients = product_details["ingredients"]
-        price = product_details["price"]
-        
-        # Check stock availability
-        for ingredient, required_qty in ingredients.items():
-            ingredient_obj = Product.objects.get(name=ingredient)
-            if ingredient_obj.stock < required_qty * quantity:
-                raise ValueError(f"Not enough {ingredient} in stock.")
-        
-        # Reduce stock
-        for ingredient, required_qty in ingredients.items():
-            ingredient_obj = Product.objects.get(name=ingredient)
-            ingredient_obj.stock -= required_qty * quantity
-            ingredient_obj.save()
+    
+def add_product(self, product_name, quantity):
+    if self.products is None:
+        self.products = []
+    
+    product_details = PRODUCTS.get(product_name)
+    if not product_details:
+        raise ValueError(f"Product {product_name} not found in the menu.")
+    
+    ingredients = product_details["ingredients"]
+    price = product_details["price"]
 
-        # Add to products JSON field
-        self.products.append({
-            "name": product_name,
-            "quantity": quantity,
-            "price": price,
-            "ingredients": ingredients,
-        })
-        self.total_price += price * quantity
-        self.save()
+    for ingredient, required_qty in ingredients.items():
+        try:
+            ingredient_obj = Product.objects.get(name=ingredient)
+        except Product.DoesNotExist:
+            raise ValueError(f"Ingredient {ingredient} not found.")
+        
+        if ingredient_obj.stock < required_qty * quantity:
+            raise ValueError(f"Not enough {ingredient} in stock for {quantity} {product_name}(s).")
+
+    for ingredient, required_qty in ingredients.items():
+        ingredient_obj = Product.objects.get(name=ingredient)
+        ingredient_obj.stock -= required_qty * quantity
+        ingredient_obj.save()
+
+    self.products.append({
+        "name": product_name,
+        "quantity": quantity,
+        "price": price,
+        "ingredients": ingredients,
+    })
+
+    self.total_price += price * quantity
+    self.save()
+

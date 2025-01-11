@@ -9,9 +9,9 @@
 </head>
 <body>
     <h1>Select Products for Order</h1>
+    {% load custom_filters %}
     <form method="POST">
         {% csrf_token %}
-        
         {% for category, products in PRODUCTS.items %}
             <h2>{{ category|title }}</h2>
             <div class="product-grid">
@@ -21,19 +21,19 @@
                         <p>Price: {{ details.price }}€</p>
                         <label>
                             <span>Quantity:</span>
-                            <input type="number" name="products[{{ product_name }}]" min="0" value="0" class="quantity-input">
+                            <input type="number" name="products-quantity-{{ product_name }}" 
+                                   min="0" value="0" class="quantity-input" 
+                                   max="{{ products_max_quantity|get_item:product_name }}">
                         </label>
+                        <input type="hidden" name="products-name-{{ product_name }}" value="{{ product_name }}">
                         <button type="button" class="update-btn" data-product="{{ product_name }}">Update Quantity</button>
                     </div>
                 {% endfor %}
             </div>
         {% endfor %}
-        
         <button type="submit">Mark as Paid</button>
-    </form>
-
+    </form>    
     <script>
-        // JavaScript to handle quantity update interactions
         document.addEventListener('DOMContentLoaded', () => {
             const updateButtons = document.querySelectorAll('.update-btn');
 
@@ -54,4 +54,5 @@
     </script>
 </body>
 </html>
+
 
