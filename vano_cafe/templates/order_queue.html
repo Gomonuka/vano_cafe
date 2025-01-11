@@ -42,14 +42,10 @@
     <p>No orders in the queue.</p>
 {% endif %}
     <script>
-        // Update the readiness of the item when checkbox is clicked
         document.querySelectorAll('.item-ready').forEach(function(checkbox) {
             checkbox.addEventListener('change', function() {
                 const orderId = checkbox.getAttribute('data-order');
                 const itemName = checkbox.getAttribute('data-item');
-
-                // Send an Ajax request or submit the form if you want to persist the change (e.g. to mark the item as ready)
-                // For simplicity, we just log it here:
                 console.log(`Order ${orderId} - Item: ${itemName} is now ${checkbox.checked ? 'ready' : 'not ready'}`);
             });
         });

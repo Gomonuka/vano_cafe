@@ -10,6 +10,7 @@
 <body>
     <header>
         <h1>Admin Dashboard</h1>
+        <h2>Vano-Cafe</h2>
     </header>
     <main>
         <section class="buttons-section">
@@ -21,36 +22,32 @@
             <h2>Low Stock Products</h2>
             <ul>
                 {% for product in low_stock_products %}
-                    <li>{{ product.name }} - Stock: {{ product.stock }}</li>
+                    <li>{{ product.name }} - stock: {{ product.stock }} {{product.unit}}</li>
                 {% endfor %}
             </ul>
         </section>
         <section class="statistics-section">
             <h2>Statistics</h2>
-            <div>
-                <h3>Total Sales</h3>
-                <p>{{ total_sales }}€</p>
-            </div>
-
-            <div>
+            <p><strong>Total Sales:</strong> {{ total_sales }}€</p>
+            <p><strong>Average Order Value:</strong> {{ avg_order_value }}€</p>
+        
+            {% if most_popular_products %}
                 <h3>Most Popular Products</h3>
                 <ul>
-                    {% for product, sold_count in most_popular_products %}
-                        <li>{{ product }} - Sold: {{ sold_count }}</li>
+                    {% for product, count in most_popular_products.items %}
+                        <li>{{ product }}: {{ count }} sales</li>
                     {% endfor %}
                 </ul>
-            </div>
-
-            <div>
-                <h3>Sales of All Products</h3>
-                <img src="data:image/png;base64,{{ sales_chart }}" alt="Sales per Product">
-            </div>
-
-            <div>
-                <h3>Average Order Value</h3>
-                <p>{{ avg_order_value }}€</p>
-            </div>
-        </section>
+            {% else %}
+                <p>No popular products to display.</p>
+            {% endif %}
+            {% if sales_chart %}
+                <h3>Sales Chart</h3>
+                <img src="data:image/png;base64,{{ sales_chart }}" alt="Sales Chart">
+            {% else %}
+                <p>No sales chart available.</p>
+            {% endif %}
+        </section>        
     </main>
 </body>
 </html>

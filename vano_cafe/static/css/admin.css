@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
 body {
-    background-color: #ecb1ff; 
+    background-color: #ecb1ff;
     font-family: 'Nunito', sans-serif;
     margin: 0;
     padding: 0;
@@ -10,10 +10,19 @@ body {
 header {
     text-align: center;
     padding: 20px;
-    background-color: #9303a3;
+    background-color: #ffc1a7;
     color: #fff;
     font-size: 30px;
     font-weight: bold;
+}
+
+header h2 {
+    background: linear-gradient(60deg, #ff8c00, #770284, #ff6a00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 48px;
+    font-weight: 800;
 }
 
 main {
@@ -21,67 +30,103 @@ main {
     display: flex;
     flex-direction: column;
     gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .buttons-section {
     text-align: center;
+    margin-bottom: 20px;
 }
 
 .buttons-section a {
-    background-color: #ff8c00; 
+    background-color: #ff8c00;
     border: none;
     text-decoration: none;
     color: #fff;
     padding: 15px 30px;
-    font-size: 20px;
+    font-size: 18px;
     border-radius: 10px;
     margin: 10px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    display: inline-block;
 }
 
-.buttons-section button:hover {
+.buttons-section a:hover {
     background-color: #ff6a00;
 }
 
-.low-stock-section {
+.low-stock-section, 
+.statistics-section {
     background-color: #f9e7e4;
     padding: 20px;
     border: 2px solid #9303a3;
     border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.low-stock-section h2 {
+.low-stock-section h2, 
+.statistics-section h2 {
     color: #9303a3;
     font-size: 25px;
+    margin-bottom: 15px;
+    text-align: center;
 }
 
 .low-stock-section ul {
     list-style-type: none;
     padding: 0;
+    margin: 0;
 }
 
 .low-stock-section li {
     font-size: 18px;
     color: #000;
     margin: 10px 0;
+    padding: 5px 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-transform: capitalize;
 }
 
-.statistics-section {
-    background-color: #f9e7e4;
-    padding: 20px;
-    border: 2px solid #9303a3;
-    border-radius: 15px;
-    text-align: center;
+.statistics-section p {
+    font-size: 18px;
+    color: #000;
+    margin: 10px 0;
 }
 
-.statistics-section h2 {
-    color: #9303a3;
-    font-size: 25px;
-}
-
-canvas {
+.statistics-section img {
     max-width: 100%;
     height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
 }
+
+.statistics-section ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.statistics-section li {
+    font-size: 18px;
+    margin: 5px 0;
+}
+
+.chart-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+footer {
+    background-color: #9303a3;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    margin-top: 30px;
+    font-size: 16px;
+    border-top: 3px solid #fff;
+}
+

@@ -13,13 +13,11 @@ from stock_management.forms import ProductForm, CustomUserEditForm
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render
-from django.db.models import Sum, Count
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import io
 import base64
-from io import BytesIO
-from collections import Counter
 
 def custom_login(request):
     if request.method == 'POST':
@@ -181,60 +179,59 @@ def order_history(request):
     })
 
 def admin_dashboard(request):
-    if not request.user.is_admin():
+    if not request.user.is_superuser:
         return redirect('login')
+
     low_stock_products = Product.objects.filter(stock__lte=F('low_stock_threshold'))
-    # 1. Total Sales: Sum of all order total prices (from Order model)
-    total_sales = Order.objects.filter(status='paid').aggregate(Sum('total_price'))['total_price__sum'] or 0
 
-    # 2. Most Popular Products: Use the 'products' JSONField to calculate product quantities
-    # We'll extract product names from the products field and count occurrences
-    orders = Order.objects.filter(status='paid')
-    all_products = []
+    orders = Order.objects.filter(status='ready')
 
+    total_sales = sum(order.total_price for order in orders)
+
+    avg_order_value = total_sales / orders.count() if orders.exists() else 0
+    avg_order_value = format(avg_order_value, ".2f")
+
+    product_sales = {}
     for order in orders:
-        for product in order.products:
-            all_products.append(product['name'])
+        for product in order.products: 
+            product_name = product.get('name')
+            quantity = product.get('quantity', 0)
+            if product_name:
+                product_sales[product_name] = product_sales.get(product_name, 0) + quantity
 
-    # Count occurrences of each product name (total quantity sold)
-    product_counts = Counter(all_products)
-    most_popular_products = product_counts.most_common(5)  # Get the top 5 most popular products
+    most_popular_products = dict(sorted(product_sales.items(), key=lambda x: x[1], reverse=True))
 
-    # 3. Sales of All Products: Calculate total quantity sold for each product
-    sales_data = Counter()
-    for order in orders:
-        for product in order.products:
-            sales_data[product['name']] += product['quantity']  # Sum up quantities for each product
+    if product_sales:
+        product_names = list(product_sales.keys())
+        product_quantities = list(product_sales.values())
 
-    # Create a bar graph for sales per product
-    product_names = list(sales_data.keys())
-    quantities = list(sales_data.values())
+        plt.figure(figsize=(10, 6))
+        plt.bar(product_names, product_quantities, color='purple')
+        plt.xlabel('Products')
+        plt.ylabel('Quantity Sold')
+        plt.title('Product Sales')
+        plt.xticks(rotation=45, ha='right')
 
-    plt.figure(figsize=(10, 6))
-    plt.bar(product_names, quantities, color='skyblue')
-    plt.xlabel('Product')
-    plt.ylabel('Quantity Sold')
-    plt.title('Sales per Product')
+        buffer = io.BytesIO()
+        plt.tight_layout()
+        plt.savefig(buffer, format='png')
+        plt.close()
+        buffer.seek(0)
 
-    # Save the plot to a BytesIO buffer
-    buf = BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    image_data = base64.b64encode(buf.read()).decode('utf-8')
-    buf.close()
+        image_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.close()
+    else:
+        image_data = None
 
-    # 4. Additional statistics (e.g., average order value)
-    total_orders = orders.count()
-    avg_order_value = total_sales / total_orders if total_orders > 0 else 0
-
-    # Pass data to the template
     context = {
         'total_sales': total_sales,
+        'avg_order_value': avg_order_value,
         'most_popular_products': most_popular_products,
         'sales_chart': image_data,
-        'avg_order_value': avg_order_value,
+        'low_stock_products': low_stock_products,
     }
-    return render(request, 'admin_dashboard.html', context, {'low_stock_products': low_stock_products})
+
+    return render(request, 'admin_dashboard.html', context)
 
 def stock_management(request):
     if not request.user.is_admin():
